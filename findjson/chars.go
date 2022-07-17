@@ -1,29 +1,11 @@
 package findjson
 
 const (
-	JsonLiteralTrue   = "true"
-	JsonLiteralFalse  = "false"
-	JsonLiteralNull   = "null"
-	JsonBackslash     = '\\'
-	JsonSignPositive  = '+'
-	JsonSignNegative  = '-'
-	JsonExponentUpper = 'E'
-	JsonExponentLower = 'e'
-	JsonLBraket       = '['
-	JsonRBraket       = ']'
-	JsonLBrace        = '{'
-	JsonRBrace        = '}'
-	JsonColon         = ':'
-	JsonComma         = ','
-	JsonPeriod        = '.'
-	JsonQuote         = '"'
-	JsonDigitZero     = '0'
-
 	JsonCharsetWhiteSpace    = 0x01
 	JsonCharsetEscapeChars   = 0x02
 	JsonCharsetDigits        = 0x04
 	JsonCharsetDigitsNonZero = 0x08
-	JsonCharsetHexdigits     = 0x10
+	JsonCharsetHexDigits     = 0x10
 
 	AsciiMask = 0x80
 )
@@ -31,12 +13,12 @@ const (
 const (
 	// abbreviations
 	jWSP = JsonCharsetWhiteSpace
-	jDGT = JsonCharsetDigits | JsonCharsetDigitsNonZero | JsonCharsetHexdigits
-	jHEX = JsonCharsetHexdigits
+	jDGT = JsonCharsetDigits | JsonCharsetDigitsNonZero | JsonCharsetHexDigits
+	jHEX = JsonCharsetHexDigits
 	jESC = JsonCharsetEscapeChars
-	jCH0 = JsonCharsetDigits | JsonCharsetHexdigits
-	jCHb = JsonCharsetHexdigits | JsonCharsetEscapeChars
-	jCHf = JsonCharsetHexdigits | JsonCharsetEscapeChars
+	jCH0 = JsonCharsetDigits | JsonCharsetHexDigits
+	jCHb = JsonCharsetHexDigits | JsonCharsetEscapeChars
+	jCHf = JsonCharsetHexDigits | JsonCharsetEscapeChars
 )
 
 var charmap = [256]byte{
@@ -91,6 +73,8 @@ var charmap = [256]byte{
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // 0xF8
 }
 
+type CharSetChecker func(byte) bool
+
 func isWhiteSpace(c byte) bool {
 	return charmap[c]&JsonCharsetWhiteSpace != 0
 }
@@ -103,8 +87,8 @@ func isDigit(c byte) bool {
 	return charmap[c]&JsonCharsetDigits != 0
 }
 
-func isHexdigit(c byte) bool {
-	return charmap[c]&JsonCharsetHexdigits != 0
+func isHexDigit(c byte) bool {
+	return charmap[c]&JsonCharsetHexDigits != 0
 }
 
 func isNonZeroDigit(c byte) bool {

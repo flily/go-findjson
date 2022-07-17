@@ -59,5 +59,5 @@ func TestIsHexDigits(t *testing.T) {
 		'A', 'B', 'C', 'D', 'E', 'F',
 	}
 
-	testIsXXXInCharSet(t, "hex digit", set, isHexdigit)
+	testIsXXXInCharSet(t, "hex digit", set, isHexDigit)
 }
