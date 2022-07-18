@@ -136,11 +136,11 @@ func scanJsonNumber(s []byte, i int) (int, int, error) {
 	var err error
 	l := len(s)
 	j := i
-	found_neg_sign := false
+	foundNegativeSign := false
 
 	if s[j] == JsonSignNegative {
 		j++
-		found_neg_sign = true
+		foundNegativeSign = true
 	}
 
 	if j >= l {
@@ -161,11 +161,11 @@ func scanJsonNumber(s []byte, i int) (int, int, error) {
 	} else {
 		v := bufferFindSample(s, j, 1)
 
-		if found_neg_sign {
+		if foundNegativeSign {
 			err = NewJsonError(j, "expect digit, got '%s'", v)
 
 		} else {
-			// May not reach here if called via FIRST_SET tables.
+			// May not reach here if called via FIRST SET tables.
 			err = NewJsonError(j, "expect digit or '-', got '%s'", v)
 		}
 
@@ -200,7 +200,7 @@ func scanJsonString(s []byte, i int) (int, int, error) {
 	var err error
 	l := len(s)
 	j := i
-	quote_close := false
+	quoteClosed := false
 
 	if s[j] != JsonQuote {
 		v := bufferFindSample(s, j, 1)
@@ -244,12 +244,12 @@ func scanJsonString(s []byte, i int) (int, int, error) {
 			}
 
 		} else if c1 == JsonQuote {
-			quote_close = true
+			quoteClosed = true
 			break
 		}
 	}
 
-	if err == nil && !quote_close {
+	if err == nil && !quoteClosed {
 		v := bufferFindSample(s, j, 1)
 		err = NewJsonError(j, "expect quote '\"', got '%s'", v)
 	}
@@ -261,7 +261,7 @@ func scanJsonArray(s []byte, i int) (int, int, error) {
 	var err error
 	l := len(s)
 	j := i
-	bracket_close := false
+	bracketClosed := false
 
 	if s[j] != JsonLBracket {
 		v := bufferFindSample(s, j, 1)
@@ -303,7 +303,7 @@ func scanJsonArray(s []byte, i int) (int, int, error) {
 
 		} else if s[j] == JsonRBracket {
 			j += 1
-			bracket_close = true
+			bracketClosed = true
 
 		} else {
 			v := bufferFindSample(s, j, 1)
@@ -313,7 +313,7 @@ func scanJsonArray(s []byte, i int) (int, int, error) {
 		break
 	}
 
-	if err == nil && !bracket_close {
+	if err == nil && !bracketClosed {
 		v := bufferFindSample(s, j, 1)
 		err = NewJsonError(j, "array is not close, got '%s'", v)
 	}
@@ -325,7 +325,7 @@ func scanJsonObject(s []byte, i int) (int, int, error) {
 	var err error
 	l := len(s)
 	j := i
-	brace_close := false
+	braceClosed := false
 
 	if s[j] != JsonLBrace {
 		v := bufferFindSample(s, j, 1)
@@ -391,7 +391,7 @@ func scanJsonObject(s []byte, i int) (int, int, error) {
 
 		} else if s[j] == JsonRBrace {
 			j += 1
-			brace_close = true
+			braceClosed = true
 
 		} else {
 			v := bufferFindSample(s, j, 1)
@@ -401,7 +401,7 @@ func scanJsonObject(s []byte, i int) (int, int, error) {
 		break
 	}
 
-	if err == nil && !brace_close {
+	if err == nil && !braceClosed {
 		v := bufferFindSample(s, j, 1)
 		err = NewJsonError(j, "object is not close, got '%s'", v)
 	}
