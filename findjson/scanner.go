@@ -57,6 +57,10 @@ func bufferFindSample(s []byte, i int, max int) string {
 func jumpNextNonWhiteSpace(s []byte, i int) int {
 	l := len(s)
 
+	if i >= l {
+		return l
+	}
+
 	for i < l && isWhiteSpace(s[i]) {
 		i++
 	}
@@ -121,7 +125,7 @@ func scanHexDigits(s []byte, i int) (int, int, error) {
 	j := tryScanCharSet(s, i, isHexDigit)
 
 	if j <= i {
-		v := bufferFindSample(s, i, 5)
+		v := bufferFindSample(s, i, 1)
 		err = NewJsonError(i, "expect hex digit, got '%s'", v)
 	}
 
@@ -211,13 +215,14 @@ func scanJsonString(s []byte, i int) (int, int, error) {
 
 		if c1 == JsonBackslash {
 			c2 := s[j]
-			j++
 
 			if isEscapeChar(c2) {
+				j++
 				// escape char
 
 			} else if c2 == JsonUnicode {
 				var nj int
+				j++
 				_, nj, err = scanHexDigits(s, j)
 				if err != nil {
 					break
@@ -260,27 +265,29 @@ func scanJsonArray(s []byte, i int) (int, int, error) {
 
 	if s[j] != JsonLBracket {
 		v := bufferFindSample(s, j, 1)
-		err = NewJsonError(j, "expect '[', got '%s'", v)
+		err = NewJsonError(j, "expect bracket '[', got '%s'", v)
 		return i, j, err
 	}
 
 	j = jumpNextNonWhiteSpace(s, j+1)
-	if s[j] == JsonRBracket {
+	if j >= l {
+		v := bufferFindSample(s, j, 1)
+		err = NewJsonError(j, "expect value or bracket ']', got '%s'", v)
+		return i, j, err
+
+	} else if s[j] == JsonRBracket {
 		return i, j + 1, nil
 	}
 
 	for j < l {
 		j = jumpNextNonWhiteSpace(s, j)
-		c := s[j]
-
-		scanner := scannerByFirstSet(c)
-		if scanner == nil {
+		if j >= l {
 			v := bufferFindSample(s, j, 1)
-			err = NewJsonError(j, "unexpected char '%s'", v)
-			break
+			err := NewJsonError(j, "expect value or bracket ']', got '%s'", v)
+			return i, j, err
 		}
 
-		_, j, err = scanner(s, j)
+		_, j, err = scanJsonValueByFirstSet(s, j)
 		if err != nil {
 			break
 		}
@@ -288,7 +295,7 @@ func scanJsonArray(s []byte, i int) (int, int, error) {
 		j = jumpNextNonWhiteSpace(s, j)
 		if j >= l {
 			v := bufferFindSample(s, j, 1)
-			err = NewJsonError(j, "expect ',' or ']', got '%s'", v)
+			err = NewJsonError(j, "expect comma',' or bracket ']', got '%s'", v)
 
 		} else if s[j] == JsonComma {
 			j += 1
@@ -300,7 +307,7 @@ func scanJsonArray(s []byte, i int) (int, int, error) {
 
 		} else {
 			v := bufferFindSample(s, j, 1)
-			err = NewJsonError(j, "unexpected char '%s'", v)
+			err = NewJsonError(j, "expect comma ',' or bracket ']', got '%s'", v)
 		}
 
 		break
@@ -322,17 +329,26 @@ func scanJsonObject(s []byte, i int) (int, int, error) {
 
 	if s[j] != JsonLBrace {
 		v := bufferFindSample(s, j, 1)
-		err = NewJsonError(j, "expect '{', got '%s'", v)
+		err = NewJsonError(j, "expect brace '{', got '%s'", v)
 		return i, j, err
 	}
 
-	j++
+	j = jumpNextNonWhiteSpace(s, j+1)
+	if j >= l {
+		v := bufferFindSample(s, j, 1)
+		err = NewJsonError(j, "expect key string or brace '}', got '%s'", v)
+		return i, j, err
+
+	} else if s[j] == JsonRBrace {
+		return i, j + 1, nil
+	}
+
 	for j < l {
 		j = jumpNextNonWhiteSpace(s, j)
-		if s[j] == JsonRBrace {
-			j++
-			brace_close = true
-			break
+		if j >= l {
+			v := bufferFindSample(s, j, 1)
+			err = NewJsonError(j, "expect key string, got '%s'", v)
+			return i, j, err
 		}
 
 		_, j, err = scanJsonString(s, j)
@@ -343,12 +359,12 @@ func scanJsonObject(s []byte, i int) (int, int, error) {
 		j = jumpNextNonWhiteSpace(s, j)
 		if j >= l {
 			v := bufferFindSample(s, j, 1)
-			err = NewJsonError(j, "expect ':', got '%s'", v)
+			err = NewJsonError(j, "expect colon ':', got '%s'", v)
 			break
 
 		} else if s[j] != JsonColon {
 			v := bufferFindSample(s, j, 1)
-			err = NewJsonError(j, "expect ':', got '%s'", v)
+			err = NewJsonError(j, "expect colon ':', got '%s'", v)
 			break
 		}
 
@@ -359,15 +375,7 @@ func scanJsonObject(s []byte, i int) (int, int, error) {
 			break
 		}
 
-		c := s[j]
-		scanner := scannerByFirstSet(c)
-		if scanner == nil {
-			v := bufferFindSample(s, j, 1)
-			err = NewJsonError(j, "unexpected char '%s'", v)
-			break
-		}
-
-		_, j, err = scanner(s, j)
+		_, j, err = scanJsonValueByFirstSet(s, j)
 		if err != nil {
 			break
 		}
@@ -375,7 +383,7 @@ func scanJsonObject(s []byte, i int) (int, int, error) {
 		j = jumpNextNonWhiteSpace(s, j)
 		if j >= l {
 			v := bufferFindSample(s, j, 1)
-			err = NewJsonError(j, "expect ',' or '}', got '%s'", v)
+			err = NewJsonError(j, "expect comma ',' or brace '}', got '%s'", v)
 
 		} else if s[j] == JsonComma {
 			j += 1
@@ -387,7 +395,7 @@ func scanJsonObject(s []byte, i int) (int, int, error) {
 
 		} else {
 			v := bufferFindSample(s, j, 1)
-			err = NewJsonError(j, "unexpected char '%s'", v)
+			err = NewJsonError(j, "expect comma ',' or brace '}', got '%s'", v)
 		}
 
 		break
@@ -421,4 +429,16 @@ func scannerByFirstSet(c byte) JsonTokenScanner {
 	default:
 		return nil
 	}
+}
+
+func scanJsonValueByFirstSet(s []byte, i int) (int, int, error) {
+	c := s[i]
+	scanner := scannerByFirstSet(c)
+	if scanner == nil {
+		v := bufferFindSample(s, i, 1)
+		err := NewJsonError(i, "unexpected first char '%s'", v)
+		return i, i, err
+	}
+
+	return scanner(s, i)
 }
