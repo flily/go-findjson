@@ -517,7 +517,7 @@ func TestScanJsonArraySuccess(t *testing.T) {
 		"[[],[],[],[],[]]",
 		`[42, 299792458, 3.1415926, -273.15, 8987661788.7,
 			6.02214076e23, 6.02214076e+23, 6.62607015e-34,
-			"LOREM", "IPSUM", ["LOREM", "IPSUM"], true,
+			"LOREM", "IPSUM", ["LOREM", "IPSUM"], true, null,
 			{"gravitation": 6.67430e-11,
 			 	"elementary charge": 1.602176634e-19}]`,
 	}
@@ -948,5 +948,29 @@ func TestScanJsonObjectFailure(t *testing.T) {
 		if start != 0 || end != 20 {
 			t.Errorf("scanJsonObject(s, 0) returns %d, %d, %s", start, end, err)
 		}
+	}
+}
+
+func TestJsonValueType(t *testing.T) {
+
+	if f := GetScannerOf(JsonValueArray); f == nil {
+		t.Errorf("GetScannerOf(JsonValueArray) returns nil")
+	}
+
+	if f := GetScannerOf(JsonValueAll); f != nil {
+		t.Errorf("GetScannerOf(JsonValueAll) returns %v", f)
+	}
+
+	j := JsonValueType(JsonValueArray)
+	if j.CanScan(JsonValueArray) == nil {
+		t.Errorf("CanScan(JsonValueArray) returns nil")
+	}
+
+	if f := j.CanScan(JsonValueAll); f != nil {
+		t.Errorf("CanScan(JsonValueAll) returns %v", j.CanScan(JsonValueAll))
+	}
+
+	if f := j.CanScan(JsonValueObject); f != nil {
+		t.Errorf("CanScan(JsonValueObject) returns %v", f)
 	}
 }
