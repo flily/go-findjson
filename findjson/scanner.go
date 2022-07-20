@@ -24,21 +24,18 @@ var (
 	JsonLiteralNull  = []byte("null")
 )
 
-func bufferStartsWith(s []byte, i int, prefix []byte) bool {
+func bufferStartsWith(s []byte, i int, prefix []byte) (bool, int) {
 	sl := len(s)
 	pl := len(prefix)
+	j := 0
 
-	if i+pl > sl {
-		return false
-	}
-
-	for j := 0; i+j < sl && j < pl; j++ {
+	for j = 0; i+j < sl && j < pl; j++ {
 		if s[i+j] != prefix[j] {
-			return false
+			return false, j
 		}
 	}
 
-	return true
+	return j >= pl, j
 }
 
 func bufferFindSample(s []byte, i int, max int) string {
@@ -73,24 +70,30 @@ func jumpNextNonWhiteSpace(s []byte, i int) int {
  * scan(s []byte, i int) (start int, next int, err error)
  * scan JSON grammar element.
  * return start of this element, next position after this element, and error.
+ * if buffer partially match the pattern, next will be after the start position.
+ * if buffer do not matched even in the first set, next will be equal to start.
  */
 
 type JsonTokenScanner func(s []byte, i int) (tokenStart int, tokenNext int, err error)
 
 func scanJsonLiteral(s []byte, i int) (int, int, error) {
 	var err error
+	var m bool // matched
+	var l int  // length
 	j := i
 
-	if bufferStartsWith(s, i, JsonLiteralNull) {
-		j += 4
+	if m, l = bufferStartsWith(s, i, JsonLiteralNull); l > 0 {
+		j += l
 
-	} else if bufferStartsWith(s, i, JsonLiteralTrue) {
-		j += 4
+	} else if m, l = bufferStartsWith(s, i, JsonLiteralTrue); l > 0 {
+		j += l
 
-	} else if bufferStartsWith(s, i, JsonLiteralFalse) {
-		j += 5
+	} else if m, l = bufferStartsWith(s, i, JsonLiteralFalse); l > 0 {
+		j += l
 
-	} else {
+	}
+
+	if !m {
 		v := bufferFindSample(s, i, 5)
 		err = NewJsonError(i, "expect null, true or false, got '%s'", v)
 	}

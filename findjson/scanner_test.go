@@ -10,32 +10,60 @@ func TestBufferStartsWith(t *testing.T) {
 	//                0        10        20        30        40
 	buffer := []byte("the quick brown fox jumps over the lazy dog")
 
-	if !bufferStartsWith(buffer, 0, []byte("the")) {
-		t.Errorf("bufferStartsWith(buffer, 0, \"the\") returns false")
+	{
+		s := []byte("the")
+		r, l := bufferStartsWith(buffer, 0, s)
+		if !r || l != 3 {
+			t.Errorf("bufferStartsWith(buffer, 0, '%s') returns %v, %d", string(s), r, l)
+		}
 	}
 
-	if bufferStartsWith(buffer, 0, []byte("THE")) {
-		t.Errorf("bufferStartsWith(buffer, 0, \"THE\") returns true")
+	{
+		s := []byte("thank")
+		r, l := bufferStartsWith(buffer, 0, s)
+		if r || l != 2 {
+			t.Errorf("bufferStartsWith(buffer, 0, '%s') returns %v, %d", string(s), r, l)
+		}
 	}
 
-	if !bufferStartsWith(buffer, 4, []byte("quick")) {
-		t.Errorf("bufferStartsWith(buffer, 4, \"quick\") returns false")
+	{
+		s := []byte("THE")
+		r, l := bufferStartsWith(buffer, 0, s)
+		if r || l != 0 {
+			t.Errorf("bufferStartsWith(buffer, 0, '%s') returns %v, %d", string(s), r, l)
+		}
 	}
 
-	if bufferStartsWith(buffer, 4, []byte("QUICK")) {
-		t.Errorf("bufferStartsWith(buffer, 4, \"QUICK\") returns true")
+	{
+		s := []byte("quick")
+		r, l := bufferStartsWith(buffer, 4, s)
+		if !r || l != 5 {
+			t.Errorf("bufferStartsWith(buffer, 4, '%s') returns %v, %d", string(s), r, l)
+		}
 	}
 
-	if bufferStartsWith(buffer, 10, []byte("brother")) {
-		t.Errorf("bufferStartsWith(buffer, 10, \"brother\") returns true")
+	{
+		s := []byte("QUICK")
+		r, l := bufferStartsWith(buffer, 4, s)
+		if r || l != 0 {
+			t.Errorf("bufferStartsWith(buffer, 4, '%s') returns %v, %d", string(s), r, l)
+		}
 	}
 
-	if !bufferStartsWith(buffer, 40, []byte("dog")) {
-		t.Errorf("bufferStartsWith(buffer, 40, \"dog\") returns false")
+	{
+		s := []byte("dog")
+		r, l := bufferStartsWith(buffer, 40, s)
+		if !r || l != 3 {
+			t.Errorf("bufferStartsWith(buffer, 40, '%s') returns %v, %d", string(s), r, l)
+		}
 	}
 
-	if bufferStartsWith(buffer, 40, []byte("doggie")) {
-		t.Errorf("bufferStartsWith(buffer, 40, \"doggie\") returns true")
+	{
+		s := []byte("doggie")
+		r, l := bufferStartsWith(buffer, 40, s)
+		if r || l != 3 {
+			t.Errorf("bufferStartsWith(buffer, 40, '%s') returns %v, %d", string(s), r, l)
+		}
 	}
 }
 
@@ -125,7 +153,7 @@ func TestScanJsonLiteralFailure(t *testing.T) {
 			t.Errorf("scanJsonLiteral(s, 17) returns %d, %d, %s", start, end, err)
 		}
 
-		if start != 17 || end != 17 {
+		if start != 17 || end != 19 {
 			t.Errorf("scanJsonLiteral(s, 17) returns %d, %d, nil", start, end)
 		}
 	}

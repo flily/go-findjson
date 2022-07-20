@@ -31,27 +31,27 @@ func GetScannerOf(k JsonValueKind) JsonTokenScanner {
 func (k JsonValueKind) String() string {
 	names := make([]string, 0, 6)
 	if k&JsonValueNull != 0 {
-		names = append(names, "JsonValueNull")
+		names = append(names, "null")
 	}
 
 	if k&JsonValueBoolean != 0 {
-		names = append(names, "JsonValueBoolean")
+		names = append(names, "boolean")
 	}
 
 	if k&JsonValueNumber != 0 {
-		names = append(names, "JsonValueNumber")
+		names = append(names, "number")
 	}
 
 	if k&JsonValueString != 0 {
-		names = append(names, "JsonValueString")
+		names = append(names, "string")
 	}
 
 	if k&JsonValueArray != 0 {
-		names = append(names, "JsonValueArray")
+		names = append(names, "array")
 	}
 
 	if k&JsonValueObject != 0 {
-		names = append(names, "JsonValueObject")
+		names = append(names, "object")
 	}
 
 	return strings.Join(names, "|")
