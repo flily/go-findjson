@@ -709,6 +709,18 @@ func TestScanJsonObjectSuccess(t *testing.T) {
 	caseList.On(t, scanJsonObject)
 }
 
+func TestScanVeryDeepArray(t *testing.T) {
+	depth := 1000 * 1000
+	lBrackets := strings.Repeat("[", depth)
+	rBrackets := strings.Repeat("]", depth)
+	s := []byte(lBrackets + rBrackets)
+
+	start, end, err := scanJsonArray(s, 0)
+	if err != nil {
+		t.Errorf("scanJsonArray(s, 0) returns %d, %d, %s", start, end, err)
+	}
+}
+
 func TestScanJsonObjectFailure(t *testing.T) {
 	{
 		s := []byte(`invalid`)
@@ -951,26 +963,14 @@ func TestScanJsonObjectFailure(t *testing.T) {
 	}
 }
 
-func TestJsonValueType(t *testing.T) {
+func TestScanVeryDeepObject(t *testing.T) {
+	depth := 1000 * 1000
+	lBrackets := strings.Repeat(`{"_":`, depth)
+	rBrackets := strings.Repeat("}", depth)
+	s := []byte(lBrackets + "{}" + rBrackets)
 
-	if f := GetScannerOf(JsonValueArray); f == nil {
-		t.Errorf("GetScannerOf(JsonValueArray) returns nil")
-	}
-
-	if f := GetScannerOf(JsonValueAll); f != nil {
-		t.Errorf("GetScannerOf(JsonValueAll) returns %v", f)
-	}
-
-	j := JsonValueType(JsonValueArray)
-	if j.CanScan(JsonValueArray) == nil {
-		t.Errorf("CanScan(JsonValueArray) returns nil")
-	}
-
-	if f := j.CanScan(JsonValueAll); f != nil {
-		t.Errorf("CanScan(JsonValueAll) returns %v", j.CanScan(JsonValueAll))
-	}
-
-	if f := j.CanScan(JsonValueObject); f != nil {
-		t.Errorf("CanScan(JsonValueObject) returns %v", f)
+	start, end, err := scanJsonObject(s, 0)
+	if err != nil {
+		t.Errorf("scanJsonArray(s, 0) returns %d, %d, %s", start, end, err)
 	}
 }

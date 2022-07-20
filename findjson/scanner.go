@@ -16,14 +16,6 @@ const (
 	JsonQuote         = '"'
 	JsonDigitZero     = '0'
 	JsonUnicode       = 'u'
-
-	JsonValueNull    = 1
-	JsonValueBoolean = 2
-	JsonValueNumber  = 4
-	JsonValueString  = 8
-	JsonValueArray   = 16
-	JsonValueObject  = 32
-	JsonValueAll     = 0x00ff // all values, 0x003f actually
 )
 
 var (
@@ -417,68 +409,9 @@ func scanJsonObject(s []byte, i int) (int, int, error) {
 	return i, j, err
 }
 
-type JsonValueType int
-
-func GetScannerOf(t JsonValueType) JsonTokenScanner {
-	switch t {
-	case JsonValueNull:
-		return scanJsonLiteral
-
-	case JsonValueBoolean:
-		return scanJsonLiteral
-
-	case JsonValueNumber:
-		return scanJsonNumber
-
-	case JsonValueString:
-		return scanJsonString
-
-	case JsonValueArray:
-		return scanJsonArray
-
-	case JsonValueObject:
-		return scanJsonObject
-	}
-
-	return nil
-}
-
-func (t JsonValueType) CanScan(kind JsonValueType) JsonTokenScanner {
-	if t&kind != 0 {
-		return GetScannerOf(kind)
-	}
-
-	return nil
-}
-
-func scannerByFirstSet(c byte, kind JsonValueType) JsonTokenScanner {
-	switch c {
-	case 'n':
-		return kind.CanScan(JsonValueNull)
-
-	case 't', 'f':
-		return kind.CanScan(JsonValueBoolean)
-
-	case '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '-':
-		return kind.CanScan(JsonValueNumber)
-
-	case JsonQuote:
-		return kind.CanScan(JsonValueString)
-
-	case JsonLBracket:
-		return kind.CanScan(JsonValueArray)
-
-	case JsonLBrace:
-		return kind.CanScan(JsonValueObject)
-
-	default:
-		return nil
-	}
-}
-
-func scanJsonValueByFirstSet(s []byte, i int, kind JsonValueType) (int, int, error) {
+func scanJsonValueByFirstSet(s []byte, i int, kind JsonValueKind) (int, int, error) {
 	c := s[i]
-	scanner := scannerByFirstSet(c, kind)
+	scanner := kind.GetScanner(c)
 	if scanner == nil {
 		v := bufferFindSample(s, i, 1)
 		err := NewJsonError(i, "unexpected first char '%s'", v)
