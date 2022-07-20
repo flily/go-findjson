@@ -23,9 +23,6 @@ jobs:
       - name: Lint with golangci-lint
         uses: golangci/golangci-lint-action@v3
 
-      - name: Run Codacy Analysis CLI
-        uses: codacy/codacy-analysis-cli-action@master
-
   coverage:
     name: Go Coverage
     needs:
@@ -58,4 +55,5 @@ jobs:
       uses: codacy/codacy-coverage-reporter-action@v1
       with:
         project-token: ${{ secrets.CODACY_PROJECT_TOKEN }}
-        coverage-reports: coverage.txt
+        coverage-reports: ./coverage.txt
+        language: go
