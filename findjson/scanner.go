@@ -1,27 +1,27 @@
 package findjson
 
 const (
-	JsonBackslash     = '\\'
-	JsonSignPositive  = '+'
-	JsonSignNegative  = '-'
-	JsonExponentUpper = 'E'
-	JsonExponentLower = 'e'
-	JsonLBracket      = '['
-	JsonRBracket      = ']'
-	JsonLBrace        = '{'
-	JsonRBrace        = '}'
-	JsonColon         = ':'
-	JsonComma         = ','
-	JsonPeriod        = '.'
-	JsonQuote         = '"'
-	JsonDigitZero     = '0'
-	JsonUnicode       = 'u'
+	jsonBackslash     = '\\'
+	jsonSignPositive  = '+'
+	jsonSignNegative  = '-'
+	jsonExponentUpper = 'E'
+	jsonExponentLower = 'e'
+	jsonLBracket      = '['
+	jsonRBracket      = ']'
+	jsonLBrace        = '{'
+	jsonRBrace        = '}'
+	jsonColon         = ':'
+	jsonComma         = ','
+	jsonPeriod        = '.'
+	jsonQuote         = '"'
+	jsonDigitZero     = '0'
+	jsonUnicode       = 'u'
 )
 
 var (
-	JsonLiteralTrue  = []byte("true")
-	JsonLiteralFalse = []byte("false")
-	JsonLiteralNull  = []byte("null")
+	jsonLiteralTrue  = []byte("true")
+	jsonLiteralFalse = []byte("false")
+	jsonLiteralNull  = []byte("null")
 )
 
 func bufferStartsWith(s []byte, i int, prefix []byte) (bool, int) {
@@ -65,15 +65,15 @@ func jumpNextNonWhiteSpace(s []byte, i int) int {
 	return i
 }
 
-/*
- * scanX functions
- * scan(s []byte, i int) (start int, next int, err error)
- * scan JSON grammar element.
- * return start of this element, next position after this element, and error.
- * if buffer partially match the pattern, next will be after the start position.
- * if buffer do not matched even in the first set, next will be equal to start.
- */
-
+// scanX functions
+//
+// Scan JSON grammar element.
+// If success, returns start of this element, position just after the end of this element,
+// and a nil error.
+//
+// If buffer partially match the pattern, tokenNext will be just after the position that matched.
+//
+// If buffer do not matched even in the first set, tokenNext will be equal to tokenStart.
 type JsonTokenScanner func(s []byte, i int) (tokenStart int, tokenNext int, err error)
 
 func scanJsonLiteral(s []byte, i int) (int, int, error) {
@@ -82,13 +82,13 @@ func scanJsonLiteral(s []byte, i int) (int, int, error) {
 	var l int  // length
 	j := i
 
-	if m, l = bufferStartsWith(s, i, JsonLiteralNull); l > 0 {
+	if m, l = bufferStartsWith(s, i, jsonLiteralNull); l > 0 {
 		j += l
 
-	} else if m, l = bufferStartsWith(s, i, JsonLiteralTrue); l > 0 {
+	} else if m, l = bufferStartsWith(s, i, jsonLiteralTrue); l > 0 {
 		j += l
 
-	} else if m, l = bufferStartsWith(s, i, JsonLiteralFalse); l > 0 {
+	} else if m, l = bufferStartsWith(s, i, jsonLiteralFalse); l > 0 {
 		j += l
 
 	}
@@ -101,7 +101,7 @@ func scanJsonLiteral(s []byte, i int) (int, int, error) {
 	return i, j, err
 }
 
-func tryScanCharSet(s []byte, i int, check CharSetChecker) int {
+func tryScanCharSet(s []byte, i int, check charSetChecker) int {
 	l, j := len(s), i
 
 	for j < l && check(s[j]) {
@@ -141,7 +141,7 @@ func scanJsonNumber(s []byte, i int) (int, int, error) {
 	j := i
 	foundNegativeSign := false
 
-	if s[j] == JsonSignNegative {
+	if s[j] == jsonSignNegative {
 		j++
 		foundNegativeSign = true
 	}
@@ -152,7 +152,7 @@ func scanJsonNumber(s []byte, i int) (int, int, error) {
 		return i, j, err
 	}
 
-	if s[j] == JsonDigitZero {
+	if s[j] == jsonDigitZero {
 		// ZERO or floats
 		// JSON do not support integers in octal form (e.g. 0777), nor hexadecimal (e.g. 0xdead)
 		// JSON do not support float number without leading digit (e.g. .233)
@@ -175,7 +175,7 @@ func scanJsonNumber(s []byte, i int) (int, int, error) {
 		return i, j, err
 	}
 
-	if j < l && s[j] == JsonPeriod {
+	if j < l && s[j] == jsonPeriod {
 		// fraction
 		_, j, err = scanDigits(s, j+1)
 		if err != nil {
@@ -183,10 +183,10 @@ func scanJsonNumber(s []byte, i int) (int, int, error) {
 		}
 	}
 
-	if j < l && (s[j] == JsonExponentUpper || s[j] == JsonExponentLower) {
+	if j < l && (s[j] == jsonExponentUpper || s[j] == jsonExponentLower) {
 		// exponent
 		j++
-		if j < l && (s[j] == JsonSignPositive || s[j] == JsonSignNegative) {
+		if j < l && (s[j] == jsonSignPositive || s[j] == jsonSignNegative) {
 			j++
 		}
 
@@ -205,7 +205,7 @@ func scanJsonString(s []byte, i int) (int, int, error) {
 	j := i
 	quoteClosed := false
 
-	if s[j] != JsonQuote {
+	if s[j] != jsonQuote {
 		v := bufferFindSample(s, j, 1)
 		err = NewJsonError(j, "expect quote '\"', got '%s'", v)
 		return i, j, err
@@ -216,14 +216,14 @@ func scanJsonString(s []byte, i int) (int, int, error) {
 		c1 := s[j]
 		j++
 
-		if c1 == JsonBackslash {
+		if c1 == jsonBackslash {
 			c2 := s[j]
 
 			if isEscapeChar(c2) {
 				j++
 				// escape char
 
-			} else if c2 == JsonUnicode {
+			} else if c2 == jsonUnicode {
 				var nj int
 				j++
 				_, nj, err = scanHexDigits(s, j)
@@ -246,7 +246,7 @@ func scanJsonString(s []byte, i int) (int, int, error) {
 				break
 			}
 
-		} else if c1 == JsonQuote {
+		} else if c1 == jsonQuote {
 			quoteClosed = true
 			break
 		}
@@ -266,7 +266,7 @@ func scanJsonArray(s []byte, i int) (int, int, error) {
 	j := i
 	bracketClosed := false
 
-	if s[j] != JsonLBracket {
+	if s[j] != jsonLBracket {
 		v := bufferFindSample(s, j, 1)
 		err = NewJsonError(j, "expect bracket '[', got '%s'", v)
 		return i, j, err
@@ -278,7 +278,7 @@ func scanJsonArray(s []byte, i int) (int, int, error) {
 		err = NewJsonError(j, "expect value or bracket ']', got '%s'", v)
 		return i, j, err
 
-	} else if s[j] == JsonRBracket {
+	} else if s[j] == jsonRBracket {
 		return i, j + 1, nil
 	}
 
@@ -300,11 +300,11 @@ func scanJsonArray(s []byte, i int) (int, int, error) {
 			v := bufferFindSample(s, j, 1)
 			err = NewJsonError(j, "expect comma',' or bracket ']', got '%s'", v)
 
-		} else if s[j] == JsonComma {
+		} else if s[j] == jsonComma {
 			j += 1
 			continue
 
-		} else if s[j] == JsonRBracket {
+		} else if s[j] == jsonRBracket {
 			j += 1
 			bracketClosed = true
 
@@ -330,7 +330,7 @@ func scanJsonObject(s []byte, i int) (int, int, error) {
 	j := i
 	braceClosed := false
 
-	if s[j] != JsonLBrace {
+	if s[j] != jsonLBrace {
 		v := bufferFindSample(s, j, 1)
 		err = NewJsonError(j, "expect brace '{', got '%s'", v)
 		return i, j, err
@@ -342,7 +342,7 @@ func scanJsonObject(s []byte, i int) (int, int, error) {
 		err = NewJsonError(j, "expect key string or brace '}', got '%s'", v)
 		return i, j, err
 
-	} else if s[j] == JsonRBrace {
+	} else if s[j] == jsonRBrace {
 		return i, j + 1, nil
 	}
 
@@ -365,7 +365,7 @@ func scanJsonObject(s []byte, i int) (int, int, error) {
 			err = NewJsonError(j, "expect colon ':', got '%s'", v)
 			break
 
-		} else if s[j] != JsonColon {
+		} else if s[j] != jsonColon {
 			v := bufferFindSample(s, j, 1)
 			err = NewJsonError(j, "expect colon ':', got '%s'", v)
 			break
@@ -388,11 +388,11 @@ func scanJsonObject(s []byte, i int) (int, int, error) {
 			v := bufferFindSample(s, j, 1)
 			err = NewJsonError(j, "expect comma ',' or brace '}', got '%s'", v)
 
-		} else if s[j] == JsonComma {
+		} else if s[j] == jsonComma {
 			j += 1
 			continue
 
-		} else if s[j] == JsonRBrace {
+		} else if s[j] == jsonRBrace {
 			j += 1
 			braceClosed = true
 

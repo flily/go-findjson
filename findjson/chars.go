@@ -1,24 +1,22 @@
 package findjson
 
 const (
-	JsonCharsetWhiteSpace    = 0x01
-	JsonCharsetEscapeChars   = 0x02
-	JsonCharsetDigits        = 0x04
-	JsonCharsetDigitsNonZero = 0x08
-	JsonCharsetHexDigits     = 0x10
-
-	AsciiMask = 0x80
+	jsonCharsetWhiteSpace    = 0x01
+	jsonCharsetEscapeChars   = 0x02
+	jsonCharsetDigits        = 0x04
+	jsonCharsetDigitsNonZero = 0x08
+	jsonCharsetHexDigits     = 0x10
 )
 
 const (
 	// abbreviations
-	jWSP = JsonCharsetWhiteSpace
-	jDGT = JsonCharsetDigits | JsonCharsetDigitsNonZero | JsonCharsetHexDigits
-	jHEX = JsonCharsetHexDigits
-	jESC = JsonCharsetEscapeChars
-	jCH0 = JsonCharsetDigits | JsonCharsetHexDigits
-	jCHb = JsonCharsetHexDigits | JsonCharsetEscapeChars
-	jCHf = JsonCharsetHexDigits | JsonCharsetEscapeChars
+	jWSP = jsonCharsetWhiteSpace
+	jDGT = jsonCharsetDigits | jsonCharsetDigitsNonZero | jsonCharsetHexDigits
+	jHEX = jsonCharsetHexDigits
+	jESC = jsonCharsetEscapeChars
+	jCH0 = jsonCharsetDigits | jsonCharsetHexDigits
+	jCHb = jsonCharsetHexDigits | jsonCharsetEscapeChars
+	jCHf = jsonCharsetHexDigits | jsonCharsetEscapeChars
 )
 
 var charmap = [256]byte{
@@ -73,24 +71,24 @@ var charmap = [256]byte{
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // 0xF8
 }
 
-type CharSetChecker func(byte) bool
+type charSetChecker func(byte) bool
 
 func isWhiteSpace(c byte) bool {
-	return charmap[c]&JsonCharsetWhiteSpace != 0
+	return charmap[c]&jsonCharsetWhiteSpace != 0
 }
 
 func isEscapeChar(c byte) bool {
-	return charmap[c]&JsonCharsetEscapeChars != 0
+	return charmap[c]&jsonCharsetEscapeChars != 0
 }
 
 func isDigit(c byte) bool {
-	return charmap[c]&JsonCharsetDigits != 0
+	return charmap[c]&jsonCharsetDigits != 0
 }
 
 func isHexDigit(c byte) bool {
-	return charmap[c]&JsonCharsetHexDigits != 0
+	return charmap[c]&jsonCharsetHexDigits != 0
 }
 
 func isNonZeroDigit(c byte) bool {
-	return charmap[c]&JsonCharsetDigitsNonZero != 0
+	return charmap[c]&jsonCharsetDigitsNonZero != 0
 }

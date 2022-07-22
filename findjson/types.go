@@ -2,6 +2,15 @@ package findjson
 
 import "strings"
 
+// Json value element kind, can be use as a bitmask.
+//
+// One of the following:
+//  JsonValueNull
+//  JsonValueBoolean
+//  JsonValueNumber
+//  JsonValueString
+//  JsonValueArray
+//  JsonValueObject
 type JsonValueKind int
 
 func GetScannerOf(k JsonValueKind) JsonTokenScanner {
@@ -76,13 +85,13 @@ func (k JsonValueKind) GetScanner(c byte) JsonTokenScanner {
 	case '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '-':
 		return k.CanScan(JsonValueNumber)
 
-	case JsonQuote:
+	case jsonQuote:
 		return k.CanScan(JsonValueString)
 
-	case JsonLBracket:
+	case jsonLBracket:
 		return k.CanScan(JsonValueArray)
 
-	case JsonLBrace:
+	case jsonLBrace:
 		return k.CanScan(JsonValueObject)
 
 	default:
