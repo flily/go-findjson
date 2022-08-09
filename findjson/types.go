@@ -28,10 +28,10 @@ func GetScannerOf(k JsonValueKind) JsonTokenScanner {
 		return scanJsonString
 
 	case JsonValueArray:
-		return scanJsonArray
+		return scanJsonArrayJNS
 
 	case JsonValueObject:
-		return scanJsonObject
+		return scanJsonObjectJNS
 	}
 
 	return nil

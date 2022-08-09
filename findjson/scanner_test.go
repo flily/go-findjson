@@ -537,7 +537,7 @@ func TestScanJsonStringFailure(t *testing.T) {
 	}
 }
 
-func TestScanJsonArraySuccess(t *testing.T) {
+func TestScanJsonArraySuccessJNS(t *testing.T) {
 	caseList := scannerCorrectCases{
 		"[]",
 		"[1, 1,  2, 3,5,8    ,13]",
@@ -550,39 +550,39 @@ func TestScanJsonArraySuccess(t *testing.T) {
 			 	"elementary charge": 1.602176634e-19}]`,
 	}
 
-	caseList.On(t, scanJsonArray)
+	caseList.On(t, scanJsonArrayJNS)
 }
 
-func TestScanJsonArrayFailure(t *testing.T) {
+func TestScanJsonArrayFailureJNS(t *testing.T) {
 	{
 		s := []byte(`invalid`)
-		start, end, err := scanJsonArray(s, 0)
+		start, end, err := scanJsonArrayJNS(s, 0)
 		if err == nil {
-			t.Fatalf("scanJsonArray(s, 0) returns %d, %d, nil", start, end)
+			t.Fatalf("scanJsonArrayJNS(s, 0) returns %d, %d, nil", start, end)
 		}
 
 		if err.Error() != "JSON error at 0: expect bracket '[', got 'i'" {
-			t.Errorf("scanJsonArray(s, 0) returns %d, %d, %s", start, end, err)
+			t.Errorf("scanJsonArrayJNS(s, 0) returns %d, %d, %s", start, end, err)
 		}
 
 		if start != 0 || end != 0 {
-			t.Errorf("scanJsonArray(s, 0) returns %d, %d, %s", start, end, err)
+			t.Errorf("scanJsonArrayJNS(s, 0) returns %d, %d, %s", start, end, err)
 		}
 	}
 
 	{
 		s := []byte("123456")
-		start, end, err := scanJsonArray(s, 0)
+		start, end, err := scanJsonArrayJNS(s, 0)
 		if err == nil {
-			t.Fatalf("scanJsonArray(s, 0) returns %d, %d, nil", start, end)
+			t.Fatalf("scanJsonArrayJNS(s, 0) returns %d, %d, nil", start, end)
 		}
 
 		if err.Error() != "JSON error at 0: expect bracket '[', got '1'" {
-			t.Errorf("scanJsonArray(s, 0) returns %d, %d, %s", start, end, err)
+			t.Errorf("scanJsonArrayJNS(s, 0) returns %d, %d, %s", start, end, err)
 		}
 
 		if start != 0 || end != 0 {
-			t.Errorf("scanJsonArray(s, 0) returns %d, %d, %s", start, end, err)
+			t.Errorf("scanJsonArrayJNS(s, 0) returns %d, %d, %s", start, end, err)
 		}
 	}
 
@@ -590,17 +590,17 @@ func TestScanJsonArrayFailure(t *testing.T) {
 		s := []byte("[")
 		//          | ^
 
-		start, end, err := scanJsonArray(s, 0)
+		start, end, err := scanJsonArrayJNS(s, 0)
 		if err == nil {
-			t.Fatalf("scanJsonArray(s, 0) returns %d, %d, nil", start, end)
+			t.Fatalf("scanJsonArrayJNS(s, 0) returns %d, %d, nil", start, end)
 		}
 
 		if err.Error() != "JSON error at 1: expect value or bracket ']', got 'EOF'" {
-			t.Errorf("scanJsonArray(s, 0) returns %d, %d, %s", start, end, err)
+			t.Errorf("scanJsonArrayJNS(s, 0) returns %d, %d, %s", start, end, err)
 		}
 
 		if start != 0 || end != 1 {
-			t.Errorf("scanJsonArray(s, 0) returns %d, %d, %s", start, end, err)
+			t.Errorf("scanJsonArrayJNS(s, 0) returns %d, %d, %s", start, end, err)
 		}
 	}
 
@@ -610,17 +610,17 @@ func TestScanJsonArrayFailure(t *testing.T) {
 		s := []byte("[1, 1,  2, 3,5,8    ,13")
 		//          |                       ^
 
-		start, end, err := scanJsonArray(s, 0)
+		start, end, err := scanJsonArrayJNS(s, 0)
 		if err == nil {
-			t.Fatalf("scanJsonArray(s, 0) returns %d, %d, nil", start, end)
+			t.Fatalf("scanJsonArrayJNS(s, 0) returns %d, %d, nil", start, end)
 		}
 
 		if err.Error() != "JSON error at 23: expect comma',' or bracket ']', got 'EOF'" {
-			t.Errorf("scanJsonArray(s, 0) returns %d, %d, %s", start, end, err)
+			t.Errorf("scanJsonArrayJNS(s, 0) returns %d, %d, %s", start, end, err)
 		}
 
 		if start != 0 || end != 23 {
-			t.Errorf("scanJsonArray(s, 0) returns %d, %d, %s", start, end, err)
+			t.Errorf("scanJsonArrayJNS(s, 0) returns %d, %d, %s", start, end, err)
 		}
 	}
 
@@ -630,17 +630,17 @@ func TestScanJsonArrayFailure(t *testing.T) {
 		s := []byte("[1, 1,  2, 3,5,8    ,13,]")
 		//          |                        ^
 
-		start, end, err := scanJsonArray(s, 0)
+		start, end, err := scanJsonArrayJNS(s, 0)
 		if err == nil {
-			t.Fatalf("scanJsonArray(s, 0) returns %d, %d, nil", start, end)
+			t.Fatalf("scanJsonArrayJNS(s, 0) returns %d, %d, nil", start, end)
 		}
 
 		if err.Error() != "JSON error at 24: unexpected first char ']'" {
-			t.Errorf("scanJsonArray(s, 0) returns %d, %d, %s", start, end, err)
+			t.Errorf("scanJsonArrayJNS(s, 0) returns %d, %d, %s", start, end, err)
 		}
 
 		if start != 0 || end != 24 {
-			t.Errorf("scanJsonArray(s, 0) returns %d, %d, %s", start, end, err)
+			t.Errorf("scanJsonArrayJNS(s, 0) returns %d, %d, %s", start, end, err)
 		}
 	}
 
@@ -650,17 +650,17 @@ func TestScanJsonArrayFailure(t *testing.T) {
 		s := []byte("[1, 1,  2, 3,5,8    ,")
 		//          |                     ^
 
-		start, end, err := scanJsonArray(s, 0)
+		start, end, err := scanJsonArrayJNS(s, 0)
 		if err == nil {
-			t.Fatalf("scanJsonArray(s, 0) returns %d, %d, nil", start, end)
+			t.Fatalf("scanJsonArrayJNS(s, 0) returns %d, %d, nil", start, end)
 		}
 
 		if err.Error() != "JSON error at 21: array is not close, got 'EOF'" {
-			t.Errorf("scanJsonArray(s, 0) returns %d, %d, %s", start, end, err)
+			t.Errorf("scanJsonArrayJNS(s, 0) returns %d, %d, %s", start, end, err)
 		}
 
 		if start != 0 || end != 21 {
-			t.Errorf("scanJsonArray(s, 0) returns %d, %d, %s", start, end, err)
+			t.Errorf("scanJsonArrayJNS(s, 0) returns %d, %d, %s", start, end, err)
 		}
 	}
 
@@ -670,17 +670,17 @@ func TestScanJsonArrayFailure(t *testing.T) {
 		s := []byte("[1, 1,  2, 3,5,8    ,   ")
 		//          |                        ^
 
-		start, end, err := scanJsonArray(s, 0)
+		start, end, err := scanJsonArrayJNS(s, 0)
 		if err == nil {
-			t.Fatalf("scanJsonArray(s, 0) returns %d, %d, nil", start, end)
+			t.Fatalf("scanJsonArrayJNS(s, 0) returns %d, %d, nil", start, end)
 		}
 
 		if err.Error() != "JSON error at 24: expect value or bracket ']', got 'EOF'" {
-			t.Errorf("scanJsonArray(s, 0) returns %d, %d, %s", start, end, err)
+			t.Errorf("scanJsonArrayJNS(s, 0) returns %d, %d, %s", start, end, err)
 		}
 
 		if start != 0 || end != 24 {
-			t.Errorf("scanJsonArray(s, 0) returns %d, %d, %s", start, end, err)
+			t.Errorf("scanJsonArrayJNS(s, 0) returns %d, %d, %s", start, end, err)
 		}
 	}
 
@@ -690,17 +690,17 @@ func TestScanJsonArrayFailure(t *testing.T) {
 		s := []byte("[1, 1,  2, 3,5, invalid ]")
 		//          |                ^
 
-		start, end, err := scanJsonArray(s, 0)
+		start, end, err := scanJsonArrayJNS(s, 0)
 		if err == nil {
-			t.Fatalf("scanJsonArray(s, 0) returns %d, %d, nil", start, end)
+			t.Fatalf("scanJsonArrayJNS(s, 0) returns %d, %d, nil", start, end)
 		}
 
 		if err.Error() != "JSON error at 16: unexpected first char 'i'" {
-			t.Errorf("scanJsonArray(s, 0) returns %d, %d, %s", start, end, err)
+			t.Errorf("scanJsonArrayJNS(s, 0) returns %d, %d, %s", start, end, err)
 		}
 
 		if start != 0 || end != 16 {
-			t.Errorf("scanJsonArray(s, 0) returns %d, %d, %s", start, end, err)
+			t.Errorf("scanJsonArrayJNS(s, 0) returns %d, %d, %s", start, end, err)
 		}
 	}
 
@@ -710,22 +710,34 @@ func TestScanJsonArrayFailure(t *testing.T) {
 		s := []byte("[1, 1,  2, 3,5, 8 invalid ]")
 		//          |                  ^
 
-		start, end, err := scanJsonArray(s, 0)
+		start, end, err := scanJsonArrayJNS(s, 0)
 		if err == nil {
-			t.Fatalf("scanJsonArray(s, 0) returns %d, %d, nil", start, end)
+			t.Fatalf("scanJsonArrayJNS(s, 0) returns %d, %d, nil", start, end)
 		}
 
 		if err.Error() != "JSON error at 18: expect comma ',' or bracket ']', got 'i'" {
-			t.Errorf("scanJsonArray(s, 0) returns %d, %d, %s", start, end, err)
+			t.Errorf("scanJsonArrayJNS(s, 0) returns %d, %d, %s", start, end, err)
 		}
 
 		if start != 0 || end != 18 {
-			t.Errorf("scanJsonArray(s, 0) returns %d, %d, %s", start, end, err)
+			t.Errorf("scanJsonArrayJNS(s, 0) returns %d, %d, %s", start, end, err)
 		}
 	}
 }
 
-func TestScanJsonObjectSuccess(t *testing.T) {
+func TestScanVeryDeepArrayJNS(t *testing.T) {
+	depth := 1000 * 1000
+	lBrackets := strings.Repeat("[", depth)
+	rBrackets := strings.Repeat("]", depth)
+	s := []byte(lBrackets + rBrackets)
+
+	start, end, err := scanJsonArrayJNS(s, 0)
+	if err != nil {
+		t.Errorf("scanJsonArrayJNS(s, 0) returns %d, %d, %s", start, end, err)
+	}
+}
+
+func TestScanJsonObjectSuccessJNS(t *testing.T) {
 	caseList := scannerCorrectCases{
 		`{}`,
 		`{"a":1, "b":2, "c":3}`,
@@ -734,69 +746,57 @@ func TestScanJsonObjectSuccess(t *testing.T) {
 			"boolean": true}`,
 	}
 
-	caseList.On(t, scanJsonObject)
+	caseList.On(t, scanJsonObjectJNS)
 }
 
-func TestScanVeryDeepArray(t *testing.T) {
-	depth := 1000 * 1000
-	lBrackets := strings.Repeat("[", depth)
-	rBrackets := strings.Repeat("]", depth)
-	s := []byte(lBrackets + rBrackets)
-
-	start, end, err := scanJsonArray(s, 0)
-	if err != nil {
-		t.Errorf("scanJsonArray(s, 0) returns %d, %d, %s", start, end, err)
-	}
-}
-
-func TestScanJsonObjectFailure(t *testing.T) {
+func TestScanJsonObjectFailureJNS(t *testing.T) {
 	{
 		s := []byte(`invalid`)
-		start, end, err := scanJsonObject(s, 0)
+		start, end, err := scanJsonObjectJNS(s, 0)
 		if err == nil {
-			t.Fatalf("scanJsonObject(s, 0) returns %d, %d, nil", start, end)
+			t.Fatalf("scanJsonObjectJNS(s, 0) returns %d, %d, nil", start, end)
 		}
 
 		if err.Error() != "JSON error at 0: expect brace '{', got 'i'" {
-			t.Errorf("scanJsonObject(s, 0) returns %d, %d, %s", start, end, err)
+			t.Errorf("scanJsonObjectJNS(s, 0) returns %d, %d, %s", start, end, err)
 		}
 
 		if start != 0 || end != 0 {
-			t.Errorf("scanJsonObject(s, 0) returns %d, %d, %s", start, end, err)
+			t.Errorf("scanJsonObjectJNS(s, 0) returns %d, %d, %s", start, end, err)
 		}
 	}
 
 	{
 		s := []byte(`123456`)
 		//          |^
-		start, end, err := scanJsonObject(s, 0)
+		start, end, err := scanJsonObjectJNS(s, 0)
 		if err == nil {
-			t.Fatalf("scanJsonObject(s, 0) returns %d, %d, nil", start, end)
+			t.Fatalf("scanJsonObjectJNS(s, 0) returns %d, %d, nil", start, end)
 		}
 
 		if err.Error() != "JSON error at 0: expect brace '{', got '1'" {
-			t.Errorf("scanJsonObject(s, 0) returns %d, %d, %s", start, end, err)
+			t.Errorf("scanJsonObjectJNS(s, 0) returns %d, %d, %s", start, end, err)
 		}
 
 		if start != 0 || end != 0 {
-			t.Errorf("scanJsonObject(s, 0) returns %d, %d, %s", start, end, err)
+			t.Errorf("scanJsonObjectJNS(s, 0) returns %d, %d, %s", start, end, err)
 		}
 	}
 
 	{
 		s := []byte(`{`)
 		//          | ^
-		start, end, err := scanJsonObject(s, 0)
+		start, end, err := scanJsonObjectJNS(s, 0)
 		if err == nil {
-			t.Fatalf("scanJsonObject(s, 0) returns %d, %d, nil", start, end)
+			t.Fatalf("scanJsonObjectJNS(s, 0) returns %d, %d, nil", start, end)
 		}
 
 		if err.Error() != "JSON error at 1: expect key string or brace '}', got 'EOF'" {
-			t.Errorf("scanJsonObject(s, 0) returns %d, %d, %s", start, end, err)
+			t.Errorf("scanJsonObjectJNS(s, 0) returns %d, %d, %s", start, end, err)
 		}
 
 		if start != 0 || end != 1 {
-			t.Errorf("scanJsonObject(s, 0) returns %d, %d, %s", start, end, err)
+			t.Errorf("scanJsonObjectJNS(s, 0) returns %d, %d, %s", start, end, err)
 		}
 	}
 
@@ -805,17 +805,17 @@ func TestScanJsonObjectFailure(t *testing.T) {
 		//           01234567890
 		s := []byte(`{1: "one"}`)
 		//          | ^
-		start, end, err := scanJsonObject(s, 0)
+		start, end, err := scanJsonObjectJNS(s, 0)
 		if err == nil {
-			t.Fatalf("scanJsonObject(s, 0) returns %d, %d, nil", start, end)
+			t.Fatalf("scanJsonObjectJNS(s, 0) returns %d, %d, nil", start, end)
 		}
 
 		if err.Error() != "JSON error at 1: expect quote '\"', got '1'" {
-			t.Errorf("scanJsonObject(s, 0) returns %d, %d, %s", start, end, err)
+			t.Errorf("scanJsonObjectJNS(s, 0) returns %d, %d, %s", start, end, err)
 		}
 
 		if start != 0 || end != 1 {
-			t.Errorf("scanJsonObject(s, 0) returns %d, %d, %s", start, end, err)
+			t.Errorf("scanJsonObjectJNS(s, 0) returns %d, %d, %s", start, end, err)
 		}
 	}
 
@@ -824,17 +824,17 @@ func TestScanJsonObjectFailure(t *testing.T) {
 		//           01234567890123456789012345
 		s := []byte(`{"one": 1, "two": 2,`)
 		//          |                    ^
-		start, end, err := scanJsonObject(s, 0)
+		start, end, err := scanJsonObjectJNS(s, 0)
 		if err == nil {
-			t.Fatalf("scanJsonObject(s, 0) returns %d, %d, nil", start, end)
+			t.Fatalf("scanJsonObjectJNS(s, 0) returns %d, %d, nil", start, end)
 		}
 
 		if err.Error() != "JSON error at 20: object is not close, got 'EOF'" {
-			t.Errorf("scanJsonObject(s, 0) returns %d, %d, %s", start, end, err)
+			t.Errorf("scanJsonObjectJNS(s, 0) returns %d, %d, %s", start, end, err)
 		}
 
 		if start != 0 || end != 20 {
-			t.Errorf("scanJsonObject(s, 0) returns %d, %d, %s", start, end, err)
+			t.Errorf("scanJsonObjectJNS(s, 0) returns %d, %d, %s", start, end, err)
 		}
 	}
 
@@ -843,17 +843,17 @@ func TestScanJsonObjectFailure(t *testing.T) {
 		//           01234567890123456789012345
 		s := []byte(`{"one": 1, "two": 2,  `)
 		//          |                      ^
-		start, end, err := scanJsonObject(s, 0)
+		start, end, err := scanJsonObjectJNS(s, 0)
 		if err == nil {
-			t.Fatalf("scanJsonObject(s, 0) returns %d, %d, nil", start, end)
+			t.Fatalf("scanJsonObjectJNS(s, 0) returns %d, %d, nil", start, end)
 		}
 
 		if err.Error() != "JSON error at 22: expect key string, got 'EOF'" {
-			t.Errorf("scanJsonObject(s, 0) returns %d, %d, %s", start, end, err)
+			t.Errorf("scanJsonObjectJNS(s, 0) returns %d, %d, %s", start, end, err)
 		}
 
 		if start != 0 || end != 22 {
-			t.Errorf("scanJsonObject(s, 0) returns %d, %d, %s", start, end, err)
+			t.Errorf("scanJsonObjectJNS(s, 0) returns %d, %d, %s", start, end, err)
 		}
 	}
 
@@ -862,17 +862,17 @@ func TestScanJsonObjectFailure(t *testing.T) {
 		//           01234567890123456789012345
 		s := []byte(`{"one": 1, "two": 2,}`)
 		//          |                    ^
-		start, end, err := scanJsonObject(s, 0)
+		start, end, err := scanJsonObjectJNS(s, 0)
 		if err == nil {
-			t.Fatalf("scanJsonObject(s, 0) returns %d, %d, nil", start, end)
+			t.Fatalf("scanJsonObjectJNS(s, 0) returns %d, %d, nil", start, end)
 		}
 
 		if err.Error() != "JSON error at 20: expect quote '\"', got '}'" {
-			t.Errorf("scanJsonObject(s, 0) returns %d, %d, %s", start, end, err)
+			t.Errorf("scanJsonObjectJNS(s, 0) returns %d, %d, %s", start, end, err)
 		}
 
 		if start != 0 || end != 20 {
-			t.Errorf("scanJsonObject(s, 0) returns %d, %d, %s", start, end, err)
+			t.Errorf("scanJsonObjectJNS(s, 0) returns %d, %d, %s", start, end, err)
 		}
 	}
 
@@ -881,17 +881,17 @@ func TestScanJsonObjectFailure(t *testing.T) {
 		//           012345678901234567890
 		s := []byte(`{"one": 1, "two"  `)
 		//          |                  ^
-		start, end, err := scanJsonObject(s, 0)
+		start, end, err := scanJsonObjectJNS(s, 0)
 		if err == nil {
-			t.Fatalf("scanJsonObject(s, 0) returns %d, %d, nil", start, end)
+			t.Fatalf("scanJsonObjectJNS(s, 0) returns %d, %d, nil", start, end)
 		}
 
 		if err.Error() != "JSON error at 18: expect colon ':', got 'EOF'" {
-			t.Errorf("scanJsonObject(s, 0) returns %d, %d, %s", start, end, err)
+			t.Errorf("scanJsonObjectJNS(s, 0) returns %d, %d, %s", start, end, err)
 		}
 
 		if start != 0 || end != 18 {
-			t.Errorf("scanJsonObject(s, 0) returns %d, %d, %s", start, end, err)
+			t.Errorf("scanJsonObjectJNS(s, 0) returns %d, %d, %s", start, end, err)
 		}
 	}
 
@@ -900,17 +900,17 @@ func TestScanJsonObjectFailure(t *testing.T) {
 		//           0123456789012345678901234567890
 		s := []byte(`{"one": 1, "two"  invalid}`)
 		//          |                  ^
-		start, end, err := scanJsonObject(s, 0)
+		start, end, err := scanJsonObjectJNS(s, 0)
 		if err == nil {
-			t.Fatalf("scanJsonObject(s, 0) returns %d, %d, nil", start, end)
+			t.Fatalf("scanJsonObjectJNS(s, 0) returns %d, %d, nil", start, end)
 		}
 
 		if err.Error() != "JSON error at 18: expect colon ':', got 'i'" {
-			t.Errorf("scanJsonObject(s, 0) returns %d, %d, %s", start, end, err)
+			t.Errorf("scanJsonObjectJNS(s, 0) returns %d, %d, %s", start, end, err)
 		}
 
 		if start != 0 || end != 18 {
-			t.Errorf("scanJsonObject(s, 0) returns %d, %d, %s", start, end, err)
+			t.Errorf("scanJsonObjectJNS(s, 0) returns %d, %d, %s", start, end, err)
 		}
 	}
 
@@ -919,17 +919,17 @@ func TestScanJsonObjectFailure(t *testing.T) {
 		//           0123456789012345678901234567890
 		s := []byte(`{"one": 1, "two": `)
 		//          |                  ^
-		start, end, err := scanJsonObject(s, 0)
+		start, end, err := scanJsonObjectJNS(s, 0)
 		if err == nil {
-			t.Fatalf("scanJsonObject(s, 0) returns %d, %d, nil", start, end)
+			t.Fatalf("scanJsonObjectJNS(s, 0) returns %d, %d, nil", start, end)
 		}
 
 		if err.Error() != "JSON error at 18: expect value, got 'EOF'" {
-			t.Errorf("scanJsonObject(s, 0) returns %d, %d, %s", start, end, err)
+			t.Errorf("scanJsonObjectJNS(s, 0) returns %d, %d, %s", start, end, err)
 		}
 
 		if start != 0 || end != 18 {
-			t.Errorf("scanJsonObject(s, 0) returns %d, %d, %s", start, end, err)
+			t.Errorf("scanJsonObjectJNS(s, 0) returns %d, %d, %s", start, end, err)
 		}
 	}
 
@@ -938,17 +938,17 @@ func TestScanJsonObjectFailure(t *testing.T) {
 		//           0123456789012345678901234567890
 		s := []byte(`{"one": 1, "two": invalid}`)
 		//          |                  ^
-		start, end, err := scanJsonObject(s, 0)
+		start, end, err := scanJsonObjectJNS(s, 0)
 		if err == nil {
-			t.Fatalf("scanJsonObject(s, 0) returns %d, %d, nil", start, end)
+			t.Fatalf("scanJsonObjectJNS(s, 0) returns %d, %d, nil", start, end)
 		}
 
 		if err.Error() != "JSON error at 18: unexpected first char 'i'" {
-			t.Errorf("scanJsonObject(s, 0) returns %d, %d, %s", start, end, err)
+			t.Errorf("scanJsonObjectJNS(s, 0) returns %d, %d, %s", start, end, err)
 		}
 
 		if start != 0 || end != 18 {
-			t.Errorf("scanJsonObject(s, 0) returns %d, %d, %s", start, end, err)
+			t.Errorf("scanJsonObjectJNS(s, 0) returns %d, %d, %s", start, end, err)
 		}
 	}
 
@@ -957,17 +957,17 @@ func TestScanJsonObjectFailure(t *testing.T) {
 		//           012345678901234567890
 		s := []byte(`{"one": 1, "two": 2`)
 		//          |                   ^
-		start, end, err := scanJsonObject(s, 0)
+		start, end, err := scanJsonObjectJNS(s, 0)
 		if err == nil {
-			t.Fatalf("scanJsonObject(s, 0) returns %d, %d, nil", start, end)
+			t.Fatalf("scanJsonObjectJNS(s, 0) returns %d, %d, nil", start, end)
 		}
 
 		if err.Error() != "JSON error at 19: expect comma ',' or brace '}', got 'EOF'" {
-			t.Errorf("scanJsonObject(s, 0) returns %d, %d, %s", start, end, err)
+			t.Errorf("scanJsonObjectJNS(s, 0) returns %d, %d, %s", start, end, err)
 		}
 
 		if start != 0 || end != 19 {
-			t.Errorf("scanJsonObject(s, 0) returns %d, %d, %s", start, end, err)
+			t.Errorf("scanJsonObjectJNS(s, 0) returns %d, %d, %s", start, end, err)
 		}
 	}
 
@@ -976,29 +976,29 @@ func TestScanJsonObjectFailure(t *testing.T) {
 		//           0123456789012345678901234567890
 		s := []byte(`{"one": 1, "two": 2 invalid}`)
 		//          |                    ^
-		start, end, err := scanJsonObject(s, 0)
+		start, end, err := scanJsonObjectJNS(s, 0)
 		if err == nil {
-			t.Fatalf("scanJsonObject(s, 0) returns %d, %d, nil", start, end)
+			t.Fatalf("scanJsonObjectJNS(s, 0) returns %d, %d, nil", start, end)
 		}
 
 		if err.Error() != "JSON error at 20: expect comma ',' or brace '}', got 'i'" {
-			t.Errorf("scanJsonObject(s, 0) returns %d, %d, %s", start, end, err)
+			t.Errorf("scanJsonObjectJNS(s, 0) returns %d, %d, %s", start, end, err)
 		}
 
 		if start != 0 || end != 20 {
-			t.Errorf("scanJsonObject(s, 0) returns %d, %d, %s", start, end, err)
+			t.Errorf("scanJsonObjectJNS(s, 0) returns %d, %d, %s", start, end, err)
 		}
 	}
 }
 
-func TestScanVeryDeepObject(t *testing.T) {
+func TestScanVeryDeepObjectJNS(t *testing.T) {
 	depth := 1000 * 1000
 	lBrackets := strings.Repeat(`{"_":`, depth)
 	rBrackets := strings.Repeat("}", depth)
 	s := []byte(lBrackets + "{}" + rBrackets)
 
-	start, end, err := scanJsonObject(s, 0)
+	start, end, err := scanJsonObjectJNS(s, 0)
 	if err != nil {
-		t.Errorf("scanJsonArray(s, 0) returns %d, %d, %s", start, end, err)
+		t.Errorf("scanJsonObjectJNS(s, 0) returns %d, %d, %s", start, end, err)
 	}
 }

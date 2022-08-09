@@ -260,7 +260,8 @@ func scanJsonString(s []byte, i int) (int, int, error) {
 	return i, j, err
 }
 
-func scanJsonArray(s []byte, i int) (int, int, error) {
+// Scan JSON array in JSON style, the trailing comma is NOT ALLOWED.
+func scanJsonArrayJNS(s []byte, i int) (int, int, error) {
 	var err error
 	l := len(s)
 	j := i
@@ -324,7 +325,8 @@ func scanJsonArray(s []byte, i int) (int, int, error) {
 	return i, j, err
 }
 
-func scanJsonObject(s []byte, i int) (int, int, error) {
+// Scan JSON Object in JSON style, the trailing comma is NOT ALLOWED.
+func scanJsonObjectJNS(s []byte, i int) (int, int, error) {
 	var err error
 	l := len(s)
 	j := i
