@@ -553,6 +553,29 @@ func TestScanJsonArraySuccessJNS(t *testing.T) {
 	caseList.On(t, scanJsonArrayJNS)
 }
 
+func TestScanJsonArraySuccessJSS(t *testing.T) {
+	caseList := scannerCorrectCases{
+		"[]",
+		"[,]",
+		"[,,]",
+		"[,4,]",
+		"[,4,[,,],]",
+		"[1, 1,  2, 3,5,8    ,13]",
+		"[1, 1,  2, 3,5,8    ,13,]",
+		"[[[]]]",
+		"[[[],],]",
+		"[[],[],[],[],[]]",
+		"[[],[],[],[],[],]",
+		`[42, 299792458, 3.1415926, -273.15, 8987661788.7,
+			6.02214076e23, 6.02214076e+23, 6.62607015e-34,
+			"LOREM", "IPSUM", ["LOREM", "IPSUM"], true, null,
+			{"gravitation": 6.67430e-11,
+			 	"elementary charge": 1.602176634e-19}]`,
+	}
+
+	caseList.On(t, scanJsonArrayJSS)
+}
+
 func TestScanJsonArrayFailureJNS(t *testing.T) {
 	{
 		s := []byte(`invalid`)
@@ -747,6 +770,19 @@ func TestScanJsonObjectSuccessJNS(t *testing.T) {
 	}
 
 	caseList.On(t, scanJsonObjectJNS)
+}
+
+func TestScanJsonObjectSuccessJSS(t *testing.T) {
+	caseList := scannerCorrectCases{
+		`{}`,
+		`{"a":1, "b":2, "c":3}`,
+		`{"a":1, "b":2, "c":3,}`,
+		`{"gravitation": 6.67430e-11, "elementary charge": 1.602176634e-19, 
+			"fibonacci": [1, 1, 2, 3, 5, 8, 13, 21], "lorem": "ipsum",
+			"boolean": true}`,
+	}
+
+	caseList.On(t, scanJsonObjectJSS)
 }
 
 func TestScanJsonObjectFailureJNS(t *testing.T) {

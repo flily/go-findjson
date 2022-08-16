@@ -5,16 +5,20 @@ import "strings"
 // Json value element kind, can be use as a bitmask.
 //
 // One of the following:
-//  JsonValueNull
-//  JsonValueBoolean
-//  JsonValueNumber
-//  JsonValueString
-//  JsonValueArray
-//  JsonValueObject
+//
+//	JsonValueNull
+//	JsonValueBoolean
+//	JsonValueNumber
+//	JsonValueString
+//	JsonValueArray
+//	JsonValueObject
 type JsonValueKind int
 
-func GetScannerOf(k JsonValueKind) JsonTokenScanner {
-	switch k {
+// Get JSON value scanner by value kind
+type JsonScannerProvider func(JsonValueKind) JsonTokenScanner
+
+func GetScannerInJNS(kind JsonValueKind) JsonTokenScanner {
+	switch kind {
 	case JsonValueNull:
 		return scanJsonLiteral
 
@@ -32,6 +36,43 @@ func GetScannerOf(k JsonValueKind) JsonTokenScanner {
 
 	case JsonValueObject:
 		return scanJsonObjectJNS
+	}
+
+	return nil
+}
+
+func GetScannerInJSS(kind JsonValueKind) JsonTokenScanner {
+	switch kind {
+	case JsonValueNull:
+		return scanJsonLiteral
+
+	case JsonValueBoolean:
+		return scanJsonLiteral
+
+	case JsonValueNumber:
+		return scanJsonNumber
+
+	case JsonValueString:
+		return scanJsonString
+
+	case JsonValueArray:
+		return scanJsonArrayJSS
+
+	case JsonValueObject:
+		return scanJsonObjectJSS
+
+	}
+
+	return nil
+}
+
+func GetScannerOf(kind JsonValueKind, style int) JsonTokenScanner {
+	switch style {
+	case NormativeStyle:
+		return GetScannerInJNS(kind)
+
+	case JavaScriptStyle:
+		return GetScannerInJSS(kind)
 	}
 
 	return nil
@@ -66,33 +107,33 @@ func (k JsonValueKind) String() string {
 	return strings.Join(names, "|")
 }
 
-func (k JsonValueKind) CanScan(kind JsonValueKind) JsonTokenScanner {
+func (k JsonValueKind) CanScan(kind JsonValueKind, style int) JsonTokenScanner {
 	if k&kind != 0 {
-		return GetScannerOf(kind)
+		return GetScannerOf(kind, style)
 	}
 
 	return nil
 }
 
-func (k JsonValueKind) GetScanner(c byte) JsonTokenScanner {
+func (k JsonValueKind) GetScanner(c byte, style int) JsonTokenScanner {
 	switch c {
 	case 'n':
-		return k.CanScan(JsonValueNull)
+		return k.CanScan(JsonValueNull, style)
 
 	case 't', 'f':
-		return k.CanScan(JsonValueBoolean)
+		return k.CanScan(JsonValueBoolean, style)
 
 	case '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '-':
-		return k.CanScan(JsonValueNumber)
+		return k.CanScan(JsonValueNumber, style)
 
 	case jsonQuote:
-		return k.CanScan(JsonValueString)
+		return k.CanScan(JsonValueString, style)
 
 	case jsonLBracket:
-		return k.CanScan(JsonValueArray)
+		return k.CanScan(JsonValueArray, style)
 
 	case jsonLBrace:
-		return k.CanScan(JsonValueObject)
+		return k.CanScan(JsonValueObject, style)
 
 	default:
 		return nil

@@ -1,5 +1,10 @@
 package findjson
 
+const (
+	NormativeStyle  = 0
+	JavaScriptStyle = 1
+)
+
 // Find JSON string in mixed content, start from offset i.
 func FindJson(s []byte, i int, kind JsonValueKind) (int, int, error) {
 	l := len(s)
@@ -10,7 +15,7 @@ func FindJson(s []byte, i int, kind JsonValueKind) (int, int, error) {
 		}
 
 		c := s[j]
-		if scanner := kind.GetScanner(c); scanner != nil {
+		if scanner := kind.GetScanner(c, NormativeStyle); scanner != nil {
 			start, end, err := scanner(s, j)
 			return start, end, err
 		}
