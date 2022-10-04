@@ -556,10 +556,10 @@ func TestScanJsonArraySuccessJNS(t *testing.T) {
 func TestScanJsonArraySuccessJSS(t *testing.T) {
 	caseList := scannerCorrectCases{
 		"[]",
-		"[,]",
-		"[,,]",
-		"[,4,]",
-		"[,4,[,,],]",
+		// "[,]",
+		// "[,,]",
+		// "[,4,]",
+		// "[,4,[,,],]",
 		"[1, 1,  2, 3,5,8    ,13]",
 		"[1, 1,  2, 3,5,8    ,13,]",
 		"[[[]]]",

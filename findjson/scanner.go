@@ -260,8 +260,7 @@ func scanJsonString(s []byte, i int) (int, int, error) {
 	return i, j, err
 }
 
-// Scan JSON array in JSON style, the trailing comma is NOT ALLOWED.
-func scanJsonArrayJNS(s []byte, i int) (int, int, error) {
+func scanJsonArray(s []byte, i int, style int) (int, int, error) {
 	var err error
 	l := len(s)
 	j := i
@@ -289,9 +288,14 @@ func scanJsonArrayJNS(s []byte, i int) (int, int, error) {
 			v := bufferFindSample(s, j, 1)
 			err := NewJsonError(j, "expect value or bracket ']', got '%s'", v)
 			return i, j, err
+
+		} else if s[j] == jsonRBracket && style == JavaScriptStyle {
+			j += 1
+			bracketClosed = true
+			break
 		}
 
-		_, j, err = scanJsonValueByFirstSet(s, j, JsonValueAll, NormativeStyle)
+		_, j, err = scanJsonValueByFirstSet(s, j, JsonValueAll, style)
 		if err != nil {
 			break
 		}
@@ -323,76 +327,19 @@ func scanJsonArrayJNS(s []byte, i int) (int, int, error) {
 	}
 
 	return i, j, err
+}
+
+// Scan JSON array in JSON style, the trailing comma is NOT ALLOWED.
+func scanJsonArrayJNS(s []byte, i int) (int, int, error) {
+	return scanJsonArray(s, i, NormativeStyle)
 }
 
 // Scan JSON array in JavaScript style, the trailing comma is ALLOWED.
 func scanJsonArrayJSS(s []byte, i int) (int, int, error) {
-	var err error
-	l := len(s)
-	j := i
-	bracketClosed := false
-
-	if s[j] != jsonLBracket {
-		v := bufferFindSample(s, j, 1)
-		err = NewJsonError(j, "expect bracket '[', got '%s'", v)
-		return i, j, err
-	}
-
-	j += 1
-	for j < l {
-		j = jumpNextNonWhiteSpace(s, j)
-		if j >= l {
-			v := bufferFindSample(s, j, 1)
-			err := NewJsonError(j, "expect value or bracket ']', got '%s'", v)
-			return i, j, err
-		}
-
-		if s[j] == jsonRBracket {
-			j += 1
-			bracketClosed = true
-			break
-
-		} else if s[j] == jsonComma {
-			j += 1
-			continue
-		}
-
-		_, j, err = scanJsonValueByFirstSet(s, j, JsonValueAll, JavaScriptStyle)
-		if err != nil {
-			break
-		}
-
-		j = jumpNextNonWhiteSpace(s, j)
-		if j >= l {
-			v := bufferFindSample(s, j, 1)
-			err = NewJsonError(j, "expect comma',' or bracket ']', got '%s'", v)
-
-		} else if s[j] == jsonComma {
-			j += 1
-			continue
-
-		} else if s[j] == jsonRBracket {
-			j += 1
-			bracketClosed = true
-
-		} else {
-			v := bufferFindSample(s, j, 1)
-			err = NewJsonError(j, "expect comma ',' or bracket ']', got '%s'", v)
-		}
-
-		break
-	}
-
-	if err == nil && !bracketClosed {
-		v := bufferFindSample(s, j, 1)
-		err = NewJsonError(j, "array is not close, got '%s'", v)
-	}
-
-	return i, j, err
+	return scanJsonArray(s, i, JavaScriptStyle)
 }
 
-// Scan JSON Object in JSON style, the trailing comma is NOT ALLOWED.
-func scanJsonObjectJNS(s []byte, i int) (int, int, error) {
+func scanJsonObject(s []byte, i int, style int) (int, int, error) {
 	var err error
 	l := len(s)
 	j := i
@@ -420,6 +367,11 @@ func scanJsonObjectJNS(s []byte, i int) (int, int, error) {
 			v := bufferFindSample(s, j, 1)
 			err = NewJsonError(j, "expect key string, got '%s'", v)
 			return i, j, err
+
+		} else if s[j] == jsonRBrace && style == JavaScriptStyle {
+			j += 1
+			braceClosed = true
+			break
 		}
 
 		_, j, err = scanJsonString(s, j)
@@ -446,7 +398,7 @@ func scanJsonObjectJNS(s []byte, i int) (int, int, error) {
 			break
 		}
 
-		_, j, err = scanJsonValueByFirstSet(s, j, JsonValueAll, NormativeStyle)
+		_, j, err = scanJsonValueByFirstSet(s, j, JsonValueAll, style)
 		if err != nil {
 			break
 		}
@@ -480,90 +432,14 @@ func scanJsonObjectJNS(s []byte, i int) (int, int, error) {
 	return i, j, err
 }
 
+// Scan JSON Object in JSON style, the trailing comma is NOT ALLOWED.
+func scanJsonObjectJNS(s []byte, i int) (int, int, error) {
+	return scanJsonObject(s, i, NormativeStyle)
+}
+
 // Scan JSON Object in JavaScript style, the trailing comma is ALLOWED.
 func scanJsonObjectJSS(s []byte, i int) (int, int, error) {
-	var err error
-	l := len(s)
-	j := i
-	braceClosed := false
-
-	if s[j] != jsonLBrace {
-		v := bufferFindSample(s, j, 1)
-		err = NewJsonError(j, "expect brace '{', got '%s'", v)
-		return i, j, err
-	}
-
-	j += 1
-	for j < l {
-		j = jumpNextNonWhiteSpace(s, j)
-		if j >= l {
-			v := bufferFindSample(s, j, 1)
-			err = NewJsonError(j, "expect key string, got '%s'", v)
-			return i, j, err
-		}
-
-		if s[j] == jsonRBrace {
-			j += 1
-			braceClosed = true
-			break
-		}
-
-		_, j, err = scanJsonString(s, j)
-		if err != nil {
-			return i, j, err
-		}
-
-		j = jumpNextNonWhiteSpace(s, j)
-		if j >= l {
-			v := bufferFindSample(s, j, 1)
-			err = NewJsonError(j, "expect colon ':', got '%s'", v)
-			break
-
-		} else if s[j] != jsonColon {
-			v := bufferFindSample(s, j, 1)
-			err = NewJsonError(j, "expect colon ':', got '%s'", v)
-			break
-		}
-
-		j = jumpNextNonWhiteSpace(s, j+1)
-		if j >= l {
-			v := bufferFindSample(s, j, 1)
-			err = NewJsonError(j, "expect value, got '%s'", v)
-			break
-		}
-
-		_, j, err = scanJsonValueByFirstSet(s, j, JsonValueAll, JavaScriptStyle)
-		if err != nil {
-			break
-		}
-
-		j = jumpNextNonWhiteSpace(s, j)
-		if j >= l {
-			v := bufferFindSample(s, j, 1)
-			err = NewJsonError(j, "expect comma ',' or brace '}', got '%s'", v)
-
-		} else if s[j] == jsonComma {
-			j += 1
-			continue
-
-		} else if s[j] == jsonRBrace {
-			j += 1
-			braceClosed = true
-
-		} else {
-			v := bufferFindSample(s, j, 1)
-			err = NewJsonError(j, "expect comma ',' or brace '}', got '%s'", v)
-		}
-
-		break
-	}
-
-	if err == nil && !braceClosed {
-		v := bufferFindSample(s, j, 1)
-		err = NewJsonError(j, "object is not close, got '%s'", v)
-	}
-
-	return i, j, err
+	return scanJsonObject(s, i, JavaScriptStyle)
 }
 
 func scanJsonValueByFirstSet(s []byte, i int, kind JsonValueKind, style int) (int, int, error) {
