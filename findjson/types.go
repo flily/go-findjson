@@ -1,6 +1,8 @@
 package findjson
 
-import "strings"
+import (
+	"strings"
+)
 
 // Json value element kind, can be use as a bitmask.
 //
@@ -13,6 +15,16 @@ import "strings"
 //	JsonValueArray
 //	JsonValueObject
 type JsonValueKind int
+
+const (
+	JsonValueNull    = JsonValueKind(1)
+	JsonValueBoolean = JsonValueKind(2)
+	JsonValueNumber  = JsonValueKind(4)
+	JsonValueString  = JsonValueKind(8)
+	JsonValueArray   = JsonValueKind(16)
+	JsonValueObject  = JsonValueKind(32)
+	JsonValueAll     = JsonValueKind(0x00ff) // all values, 0x003f actually
+)
 
 // Get JSON value scanner by value kind
 type JsonScannerProvider func(JsonValueKind) JsonTokenScanner
@@ -139,13 +151,3 @@ func (k JsonValueKind) GetScanner(c byte, style int) JsonTokenScanner {
 		return nil
 	}
 }
-
-var (
-	JsonValueNull    = JsonValueKind(1)
-	JsonValueBoolean = JsonValueKind(2)
-	JsonValueNumber  = JsonValueKind(4)
-	JsonValueString  = JsonValueKind(8)
-	JsonValueArray   = JsonValueKind(16)
-	JsonValueObject  = JsonValueKind(32)
-	JsonValueAll     = JsonValueKind(0x00ff) // all values, 0x003f actually
-)
