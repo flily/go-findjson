@@ -1,4 +1,4 @@
-name: compatibility
+name: Compatibility
 
 on:
   push:
