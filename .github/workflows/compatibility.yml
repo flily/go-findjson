@@ -1,4 +1,4 @@
-name: Compatible
+name: compatibility
 
 on:
   push:
@@ -10,7 +10,7 @@ on:
 
 jobs:
   compatible:
-    name: Go compatible test
+    name: Go compatibility test
     strategy:
       matrix:
         version:
