@@ -1028,7 +1028,8 @@ func TestScanJsonObjectFailureJNS(t *testing.T) {
 }
 
 func TestScanVeryDeepObjectJNS(t *testing.T) {
-	depth := 1000 * 1000
+	// original 1,000,000 levels nested object may cause stack overflow on go versions earlier than 1.15
+	depth := 900 * 1000
 	lBrackets := strings.Repeat(`{"_":`, depth)
 	rBrackets := strings.Repeat("}", depth)
 	s := []byte(lBrackets + "{}" + rBrackets)
