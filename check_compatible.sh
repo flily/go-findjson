@@ -1,6 +1,7 @@
 #!/bin/bash
 
 GO_VERSION_LIST=(
+    "1.19"
     "1.18"
     "1.17"
     "1.16"
