@@ -5,8 +5,8 @@ const (
 	JavaScriptStyle = 1
 )
 
-// Find JSON string in mixed content, start from offset i.
-func FindJson(s []byte, i int, kind JsonValueKind) (int, int, error) {
+// Find JSON string in mixed content, start from offset i, with style specified.
+func FindJsonWithStyle(s []byte, i int, kind JsonValueKind, style int) (int, int, error) {
 	l := len(s)
 	j := i
 	for j < l {
@@ -15,7 +15,7 @@ func FindJson(s []byte, i int, kind JsonValueKind) (int, int, error) {
 		}
 
 		c := s[j]
-		if scanner := kind.GetScanner(c, NormativeStyle); scanner != nil {
+		if scanner := kind.GetScanner(c, style); scanner != nil {
 			start, end, err := scanner(s, j)
 			return start, end, err
 		}
@@ -24,4 +24,9 @@ func FindJson(s []byte, i int, kind JsonValueKind) (int, int, error) {
 	}
 
 	return i, j, NewJsonError(j, "no JSON string found in %s", kind)
+}
+
+// Find JSON string in mixed content, start from offset i.
+func FindJson(s []byte, i int, kind JsonValueKind) (int, int, error) {
+	return FindJsonWithStyle(s, i, kind, NormativeStyle)
 }
