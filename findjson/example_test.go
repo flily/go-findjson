@@ -20,7 +20,8 @@ func ExampleFindJson() {
 		i = end
 	}
 
-	// Output: true
+	// Output:
+	// true
 	// {"one": 1, "two": 2, "three": 3}
 }
 
@@ -41,7 +42,8 @@ func ExampleFindJsonWithStyle_normative_style() {
 		i = end
 	}
 
-	// Output: [1, 2, 3]
+	// Output:
+	// [1, 2, 3]
 }
 
 func ExampleFindJsonWithStyle_javascript_style() {
@@ -61,6 +63,7 @@ func ExampleFindJsonWithStyle_javascript_style() {
 		i = end
 	}
 
-	// Output: [1, 2, 3]
+	// Output:
+	// [1, 2, 3]
 	// [4, 5, 6,]
 }
